@@ -191,7 +191,7 @@ pub fn offer_takeback(room_id: &str, player_id: &str) -> Result<ServerMessage, S
         return Err("Not enough moves to take back".to_string());
     }
 
-    // Only one pending takeback at a time
+    // Only two pending takeback at a time
     if room.pending_takeback.is_some() {
         return Err("A takeback request is already pending".to_string());
     }
