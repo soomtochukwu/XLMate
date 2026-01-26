@@ -206,6 +206,7 @@ impl MatchmakingService {
         }
 
         Ok(None)
+
     }
 
     pub async fn cancel_request(&self, request_id: Uuid) -> Result<bool, String> {
