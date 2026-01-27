@@ -224,7 +224,7 @@ mod tests {
         }
     }
 
-    #[actix_rt::test]
+    #[actix_web::test]
     async fn test_broadcast_to_two_clients() {
         let lobby = LobbyState::new().start();
         let (tx1, mut rx1) = unbounded_channel();

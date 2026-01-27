@@ -46,6 +46,7 @@ async fn main() -> Result<(), DbErr> {
             location: Set(Some("New York, NY".to_string())),
             fide_rating: Set(Some(rand::thread_rng().gen_range(800..2800))),
             social_links: Set(Some(vec!["http://twitter.com/player".to_string()])),
+            is_enabled: Set(true),
             ..Default::default()
         }
     }).collect();
@@ -58,8 +59,23 @@ async fn main() -> Result<(), DbErr> {
 
     // --- Seed Games ---
     let mut rng = rand::thread_rng();
-    let variants = vec![GameVariant::Standard, GameVariant::Chess960, GameVariant::Blitz, GameVariant::Rapid];
-    let results = vec![ResultSide::White, ResultSide::Black, ResultSide::Draw];
+    
+    // We will generate random variants/results inside the loop or define vectors with new Enum variants
+    // But main's loop uses match blocks. We can stick to match blocks or arrays. 
+    // Arrays are cleaner.
+    let variants = vec![
+        GameVariant::Standard, 
+        GameVariant::Chess960, 
+        GameVariant::ThreeCheck, 
+        GameVariant::Blitz, 
+        GameVariant::Rapid, 
+        GameVariant::Classical
+    ];
+    let results = vec![
+        ResultSide::WhiteWins, 
+        ResultSide::BlackWins, 
+        ResultSide::Draw
+    ];
 
     println!("Seeding {} games...", NUM_GAMES);
     for i in 0..NUM_GAMES {
@@ -84,7 +100,8 @@ async fn main() -> Result<(), DbErr> {
             variant: Set(variants.choose(&mut rng).unwrap().clone()),
             started_at: Set(started_at.into()),
             duration_sec: Set(duration_sec),
-            ..Default::default()
+            created_at: Set(Utc::now().into()),
+            updated_at: Set(Utc::now().into()),
         };
 
         Game::insert(game).exec(&db).await?;

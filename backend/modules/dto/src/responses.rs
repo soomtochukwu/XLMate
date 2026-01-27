@@ -67,6 +67,6 @@ pub struct ValidationErrorResponse {
     pub error: String,
     #[schema(example = 400)]
     pub code: i32,
-    #[schema(example = ["FEN string is invalid", "Depth must be between 1 and 20"])]
+    #[schema(example = json!(["FEN string is invalid", "Depth must be between 1 and 20"]))]
     pub details: Option<Vec<String>>,
 }

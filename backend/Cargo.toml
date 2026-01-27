@@ -13,4 +13,3 @@ members = [
     "modules/challenge",
     "modules/tournament",
 ]
-

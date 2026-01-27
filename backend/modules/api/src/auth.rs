@@ -6,6 +6,16 @@ use security::JwtService;
 use sea_orm::DatabaseConnection;
 
 /// Register a new user
+#[utoipa::path(
+    post,
+    path = "/v1/auth/register",
+    request_body = RegisterRequest,
+    responses(
+        (status = 201, description = "User registered successfully", body = AuthResponse),
+        (status = 400, description = "Validation error", body = ErrorResponse)
+    ),
+    tag = "Authentication"
+)]
 #[post("/register")]
 pub async fn register(
     _db: web::Data<DatabaseConnection>,
@@ -30,6 +40,17 @@ pub async fn register(
 }
 
 /// Login with credentials
+#[utoipa::path(
+    post,
+    path = "/v1/auth/login",
+    request_body = LoginRequest,
+    responses(
+        (status = 200, description = "Login successful", body = AuthResponse),
+        (status = 400, description = "Validation error", body = ErrorResponse),
+        (status = 401, description = "Invalid credentials", body = ErrorResponse)
+    ),
+    tag = "Authentication"
+)]
 #[post("/login")]
 pub async fn login(
     _db: web::Data<DatabaseConnection>,

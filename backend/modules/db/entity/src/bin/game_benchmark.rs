@@ -107,7 +107,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Inserting {} games in batches of {}...", NUM_GAMES_TO_INSERT, BATCH_SIZE);
     let mut game_models = Vec::with_capacity(BATCH_SIZE);
     let variants = [GameVariant::Standard, GameVariant::Chess960, GameVariant::Blitz, GameVariant::Rapid, GameVariant::Classical]; // Update variants list
-    let results = [ResultSide::White, ResultSide::Black, ResultSide::Draw]; // Update results list
+    let results = [ResultSide::WhiteWins, ResultSide::BlackWins, ResultSide::Draw]; // Update results list
     let insert_start = Instant::now();
 
     for i in 0..NUM_GAMES_TO_INSERT {
@@ -121,6 +121,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             black_player: Set(black_player_id),
             fen: Set(generate_random_fen(&mut rng)),
             pgn: Set(generate_random_pgn(&mut rng)),
+
             result: Set(Some(results[rng.gen_range(0..results.len())].clone())),
             variant: Set(variants[rng.gen_range(0..variants.len())].clone()),
             duration_sec: Set(rng.gen_range(30..600)),

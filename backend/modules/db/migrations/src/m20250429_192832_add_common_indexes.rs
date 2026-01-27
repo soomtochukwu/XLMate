@@ -1,5 +1,5 @@
 use sea_orm_migration::{prelude::*, MigrationTrait};
-use super::m20250428_121011_create_players_table::Player;
+
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -98,4 +98,12 @@ enum Game {
     StartedAt,
     Pgn,
     // Add other columns if needed for future migrations involving this table
+}
+
+#[derive(Iden)]
+#[iden = "smdb"]
+enum Player {
+    #[iden = "player"]
+    Table,
+    Username,
 }

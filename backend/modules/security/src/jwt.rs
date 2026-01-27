@@ -1,6 +1,7 @@
 use actix_web::{
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     error::{Error, ErrorUnauthorized},
+    body::{BoxBody, MessageBody},
     HttpMessage, HttpResponse,
 };
 use futures_util::future::{ok, LocalBoxFuture, Ready};
@@ -106,9 +107,9 @@ impl<S, B> Transform<S, ServiceRequest> for JwtAuthMiddleware
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     S::Future: 'static,
-    B: 'static,
+    B: 'static + MessageBody,
 {
-    type Response = ServiceResponse<B>;
+    type Response = ServiceResponse<BoxBody>;
     type Error = Error;
     type Transform = JwtAuthMiddlewareService<S>;
     type InitError = ();
@@ -133,9 +134,9 @@ impl<S, B> Service<ServiceRequest> for JwtAuthMiddlewareService<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
     S::Future: 'static,
-    B: 'static,
+    B: 'static + MessageBody,
 {
-    type Response = ServiceResponse<B>;
+    type Response = ServiceResponse<BoxBody>;
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
@@ -170,7 +171,10 @@ where
                             // Store claims in request extensions
                             req.extensions_mut().insert(claims);
                             let fut = self.service.call(req);
-                            Box::pin(async move { fut.await })
+                            Box::pin(async move { 
+                                let res = fut.await?;
+                                Ok(res.map_into_boxed_body())
+                            })
                         }
                         Err(_) => {
                             Box::pin(async move {
