@@ -32,7 +32,8 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .name("idx_game_pgn")
                     .table(Game::Table)
-                    .col((Game::Pgn, IndexType::Gin))
+                    .col(Game::Pgn)
+                    .index_type(IndexType::Custom(SeaRc::new(Alias::new("GIN"))))
                     .to_owned(),
             )
             .await?;
@@ -100,5 +101,13 @@ enum Game {
     WhitePlayer,
     BlackPlayer,
     StartedAt,
-    // Add other columns if needed for future migrations involving this table
+    Pgn,
+}
+
+#[derive(Iden)]
+#[iden = "smdb"]
+enum Player {
+    #[iden = "player"]
+    Table,
+    Username,
 }

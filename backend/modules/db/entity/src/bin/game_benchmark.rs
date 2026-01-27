@@ -80,9 +80,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             country: Set("Unknown".to_string()), // Add default
             flair: Set("Bench Flair".to_string()), // Add default
             real_name: Set("Bench Real Name".to_string()), // Add default
-            location: Set("Bench Location".to_string()), // Add default
-            fide_rating: Set(1500), // Add default
-            social_links: Set(vec![]), // Add default (empty vec)
+            location: Set(Some("Bench Location".to_string())), // Add default
+            fide_rating: Set(Some(1500)), // Add default
+            social_links: Set(Some(vec![])), // Add default (empty vec)
             ..Default::default()
         });
     }
@@ -120,8 +120,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             black_player: Set(black_player_id),
             fen: Set(generate_random_fen(&mut rng)),
             pgn: Set(generate_random_pgn(&mut rng)),
-            result: Set(results[rng.gen_range(0..results.len())].to_string()),
-            variant: Set(variants[rng.gen_range(0..variants.len())].to_string()),
+            result: Set(match rng.gen_range(0..3) {
+                0 => game::ResultSide::WhiteWins,
+                1 => game::ResultSide::BlackWins,
+                _ => game::ResultSide::Draw,
+            }),
+            variant: Set(match rng.gen_range(0..6) {
+                0 => game::GameVariant::Standard,
+                1 => game::GameVariant::Chess960,
+                2 => game::GameVariant::ThreeCheck,
+                3 => game::GameVariant::Blitz,
+                4 => game::GameVariant::Rapid,
+                _ => game::GameVariant::Classical,
+            }),
             duration_sec: Set(rng.gen_range(30..600)),
             ..Default::default() // started_at has default
         });
@@ -152,7 +163,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let query_variant = variants[rng.gen_range(0..variants.len())];
     let query_start = Instant::now();
     let games_by_variant = Game::find()
-        .filter(game::Column::Variant.eq(query_variant))
+        .filter(game::Column::Variant.eq(game::GameVariant::Standard))
         .limit(1000) // Limit results for benchmark
         .all(&db)
         .await?;

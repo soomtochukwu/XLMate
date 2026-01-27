@@ -88,3 +88,5 @@ pub struct TokenResponse {
     #[schema(example = 3600)]
     pub expires_in: i32,
 }
+
+pub type LoginResponse = AuthResponse;

@@ -42,9 +42,10 @@ async fn main() -> Result<(), DbErr> {
             country: Set("USA".to_string()),
             flair: Set("GM".to_string()),
             real_name: Set(format!("Real Name {}", i + 1)),
-            location: Set("New York, NY".to_string()),
-            fide_rating: Set(rand::thread_rng().gen_range(800..2800)),
-            social_links: Set(vec!["http://twitter.com/player".to_string()]),
+            location: Set(Some("New York, NY".to_string())),
+            fide_rating: Set(Some(rand::thread_rng().gen_range(800..2800))),
+            social_links: Set(Some(vec!["http://twitter.com/player".to_string()])),
+            is_enabled: Set(true),
         }
     }).collect();
 
@@ -78,10 +79,23 @@ async fn main() -> Result<(), DbErr> {
             black_player: Set(black_player_id),
             fen: Set(STARTING_FEN.to_string()), // Simple FEN for now
             pgn: Set(json!({ "moves": "e4 c5 ...", "final_ply": rng.gen_range(10..150) })), // Added final_ply for benchmark
-            result: Set(results.choose(&mut rng).unwrap().to_string()),
-            variant: Set(variants.choose(&mut rng).unwrap().to_string()),
+            result: Set(match rng.gen_range(0..3) {
+                0 => game::ResultSide::WhiteWins,
+                1 => game::ResultSide::BlackWins,
+                _ => game::ResultSide::Draw,
+            }),
+            variant: Set(match rng.gen_range(0..6) {
+                0 => game::GameVariant::Standard,
+                1 => game::GameVariant::Chess960,
+                2 => game::GameVariant::ThreeCheck,
+                3 => game::GameVariant::Blitz,
+                4 => game::GameVariant::Rapid,
+                _ => game::GameVariant::Classical,
+            }),
             started_at: Set(started_at.into()),
             duration_sec: Set(duration_sec),
+            created_at: Set(Utc::now().into()),
+            updated_at: Set(Utc::now().into()),
         };
 
         Game::insert(game).exec(&db).await?;
